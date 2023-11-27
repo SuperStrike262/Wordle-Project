@@ -1,0 +1,111 @@
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// color output
+#define RESET "\033[0m"
+#define GREEN "\033[32m"
+#define BLUE "\033[34m"
+
+// Check if character is found or not found
+bool isCharacterPresent(const string &randomWord, char character) {
+  for (int i = 0; i < randomWord.size(); i++) {
+    if (randomWord[i] == character) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
+int main() {
+  vector<string> words;
+  string wordList;
+
+  // check if file is open
+  ifstream inFile("words.txt");
+  if (!inFile) {
+    cout << "Error opening file!" << endl;
+    return 1;
+  }
+
+  // Read words from txt file and put the words into the vector
+  while (inFile >> wordList) {
+    words.push_back(wordList);
+  }
+  inFile.close();
+
+  //Play again loop
+  bool playAgain = true;
+  while (playAgain) {
+    // Generate a random number and select a word from the vector
+    srand(time(0));
+    int randomIndex = rand() % words.size();
+
+    string randomWord = words[randomIndex];
+    // cout << randomWord << endl;
+
+    // Set the number of tried to 6 max
+    string guess;
+    int count = 6;
+
+
+    while (count > 0 ) {
+      // User tries to guess the 5 letter word
+      cout << "Enter a lowercase 5 letter word: ";
+      cin >> guess;
+
+      while (guess.length() != 5) {
+        cout << "Invalid input. Please enter a 5 letter word: ";
+        cin >> guess;
+      }
+
+
+      cout << "Result: ";
+      for (size_t i = 0; i < guess.length(); ++i) {
+          if (guess[i] == randomWord[i]) {
+              cout << GREEN << guess[i] << RESET; // Green for correct letter in correct spot
+          } else if (isCharacterPresent(randomWord, guess[i])) {
+              cout << BLUE << guess[i] << RESET; // blue for correct letter in wrong spot
+          } else {
+              cout << guess[i]; // Original letter
+          }
+      }
+      cout << endl;
+
+      //Break if guessed correctly
+      if (guess == randomWord) {
+        cout << "Congratulations! You guessed the word: " << randomWord << endl;
+        break;
+      }
+
+
+      count--;
+      cout << "Attempts left: " << count << endl;
+    }
+
+    if (count == 0) {
+      cout << "You have lost. The word was " << randomWord << endl;
+    }
+
+    //Ask user if they want to play again
+    char playAgainResp;
+    cout << "Play again? (y/n): ";
+    cin >> playAgainResp;
+
+    if (playAgainResp == 'n') {
+      playAgain = false;
+    }
+    else {
+      cout << endl;
+    }
+  }
+
+  cout << "Thank you for playing!";
+  return 0;
+}
